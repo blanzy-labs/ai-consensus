@@ -12,4 +12,4 @@ def test_config_loads_defaults_without_api_keys() -> None:
     assert settings.openai_api_key == ""
     assert settings.openai_model == "gpt-4.1-mini"
     assert settings.gemini_api_key == ""
-    assert settings.gemini_model == "gemini-1.5-flash"
+    assert settings.gemini_model == "gemini-2.5-flash"

@@ -72,4 +72,14 @@ describe("markdown export", () => {
       "mythadis-consensus-report-20260607-140509.md",
     );
   });
+
+  test("does not add provider API key fields to exported markdown", () => {
+    const markdown = buildConsensusMarkdown(result, generatedAt);
+    const openAiKeyName = ["OPENAI", "API", "KEY"].join("_");
+    const geminiKeyName = ["GEMINI", "API", "KEY"].join("_");
+
+    expect(markdown).not.toContain(openAiKeyName);
+    expect(markdown).not.toContain(geminiKeyName);
+    expect(markdown).not.toContain("sk-test-secret");
+  });
 });

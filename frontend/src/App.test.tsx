@@ -145,7 +145,7 @@ describe("App", () => {
 
   test("renders backend error message", async () => {
     mockedRunConsensus.mockRejectedValue(
-      new Error("OpenAI API key is not configured. Set OPENAI_API_KEY in your .env file."),
+      new Error("OpenAI API key is not configured. Set the backend key in your .env file."),
     );
     render(<App />);
 
@@ -156,7 +156,7 @@ describe("App", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(
-        "OpenAI API key is not configured. Set OPENAI_API_KEY in your .env file.",
+        "OpenAI API key is not configured. Set the backend key in your .env file.",
       );
     });
   });

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4.1-mini"
 
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-1.5-flash"
+    gemini_model: str = "gemini-2.5-flash"
 
     model_config = SettingsConfigDict(
         env_file=(".env", "../.env"),

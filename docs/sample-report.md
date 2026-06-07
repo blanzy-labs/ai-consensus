@@ -6,7 +6,7 @@
 
 - Generated At: June 7, 2026, 14:30
 - Primary Provider/Model: gpt-4.1-mini
-- Reviewer Provider/Model: gemini-1.5-flash
+- Reviewer Provider/Model: gemini-2.5-flash
 - Synthesizer Provider/Model: gpt-4.1-mini
 
 ## Question

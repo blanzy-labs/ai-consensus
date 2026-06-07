@@ -13,6 +13,8 @@ Mythadis Consensus Engine will help compare and synthesize AI responses. The pla
 
 The backend exposes `/health` and `POST /consensus/run`. The frontend is a single-page React/Vite app that calls those endpoints from the browser.
 
+Environment and secret boundaries are intentionally simple: provider API keys are loaded only by the backend from `.env`, while the frontend receives only `VITE_API_BASE_URL`. Docker Compose loads `.env` for the backend service and does not pass provider keys to the frontend service.
+
 The consensus endpoint runs a three-step prompt workflow:
 
 1. Primary answer: select the configured primary provider and ask it for a clear answer with assumptions and uncertainty.
