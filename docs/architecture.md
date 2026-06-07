@@ -2,55 +2,192 @@
 
 ## Purpose
 
-Mythadis Consensus Engine will help compare and synthesize AI responses. The planned product flow is:
+Mythadis Consensus Engine is a lightweight, local-first, open-source consensus tool. It lets a user ask a question, route that question through multiple AI providers, and receive a structured result that highlights agreement, disagreement, uncertainty, and follow-up questions.
 
-1. User asks a question.
-2. A primary model produces an answer.
-3. A reviewer model critiques the answer.
-4. A final synthesis identifies agreement, disagreement, and uncertainty.
+The app is intentionally small: no login, no database, no prompt history, no server-side result storage, no telemetry, and no analytics.
 
-## Current Backend Workflow
+## High-Level Flow
 
-The backend exposes `/health` and `POST /consensus/run`. The frontend is a single-page React/Vite app that calls those endpoints from the browser.
+```text
+Frontend
+  -> FastAPI backend
+  -> Primary provider
+  -> Reviewer provider
+  -> Synthesizer provider
+  -> Structured response
+  -> Frontend display
+  -> Browser-side Markdown export
+```
 
-Environment and secret boundaries are intentionally simple: provider API keys are loaded only by the backend from `.env`, while the frontend receives only `VITE_API_BASE_URL`. Docker Compose loads `.env` for the backend service and does not pass provider keys to the frontend service.
+## Components
 
-The consensus endpoint runs a three-step prompt workflow:
+### React/Vite Frontend
 
-1. Primary answer: select the configured primary provider and ask it for a clear answer with assumptions and uncertainty.
-2. Reviewer critique: select the configured reviewer provider and ask it to act as an objective quality reviewer, not a debate opponent.
-3. Final synthesis: select the configured synthesizer provider and ask it for a balanced final answer in structured JSON.
+The frontend provides the single-page user interface:
 
-Provider selection uses the backend LLM provider factory. Supported provider identifiers are currently `openai` and `gemini`; the provider layer is designed so additional providers can be added later without changing the route contract.
+- Backend health status
+- Question input
+- Provider selectors
+- Loading state
+- Safe error display
+- Structured result display
+- Browser-side Markdown export
 
-Prompt templates are centralized in `backend/app/llm/prompts.py`. The synthesizer is prompted to return JSON containing `final_answer`, `agreement_points`, `disagreement_points`, `uncertainties`, and `follow_up_questions`. The backend parses that JSON into the response schema. If the synthesizer returns invalid JSON, the backend returns the raw synthesizer output as `final_answer`, leaves list fields empty, and records an uncertainty explaining that structured JSON was not returned.
+The frontend calls only the local backend. It does not call OpenAI, Gemini, or other LLM providers directly.
 
-The frontend now supports question submission, provider selection, loading states, error display, backend health checks, result display, and browser-side Markdown export. No authentication, database, prompt history, stored results, or mock AI product responses are implemented.
+### FastAPI Backend
 
-## Frontend Flow
+The backend exposes:
 
-The frontend has a small set of focused components:
+- `GET /health`
+- `POST /consensus/run`
 
-- `StatusBanner` shows backend health as unknown, online, or unavailable.
-- `QuestionForm` collects the user question and provider selections.
-- `ModelSelector` renders the `openai` and `gemini` provider choices.
-- `LoadingSteps` shows static workflow stages while the backend request is running.
-- `ErrorMessage` displays safe API and network errors.
-- `ResultPanel` displays the final answer, structured lists, primary answer, reviewer critique, models used, and an export action.
-- `ExportButton` builds a Markdown report from the currently visible result and downloads it locally.
+It owns configuration, provider selection, prompt construction, provider API calls, synthesis parsing, and safe error handling.
 
-The frontend sends only the question and provider names to `POST /consensus/run`. It does not send or receive provider API keys. Results are displayed in the browser after the backend responds and are not stored by the app.
+### Provider Abstraction
 
-## Markdown Export Flow
+The backend LLM layer exposes a small provider contract with a `generate(prompt: str) -> str` method. Provider identifiers are lowercase strings.
 
-Markdown export is browser-side:
+Currently supported providers:
 
-1. The user runs a consensus request.
-2. The backend returns a structured consensus response.
-3. The result is displayed in the browser.
-4. The user clicks `Export Markdown`.
-5. The browser downloads a `.md` file built from the visible result.
+- `openai`
+- `gemini`
 
-The export does not make another backend call and does not store reports on the server.
+### OpenAI Provider
 
-No authentication, database, prompt history, stored results, streaming, websockets, PDF export, or share links are implemented.
+The OpenAI provider reads `OPENAI_API_KEY` and `OPENAI_MODEL` from backend settings and calls the configured OpenAI model.
+
+Default model:
+
+```text
+gpt-4.1-mini
+```
+
+### Gemini Provider
+
+The Gemini provider reads `GEMINI_API_KEY` and `GEMINI_MODEL` from backend settings and calls the configured Gemini model.
+
+Default model:
+
+```text
+gemini-2.5-flash
+```
+
+### Consensus Service
+
+The consensus service orchestrates the workflow:
+
+1. Build primary prompt.
+2. Call primary provider.
+3. Build reviewer prompt.
+4. Call reviewer provider.
+5. Build synthesis prompt.
+6. Call synthesizer provider.
+7. Parse synthesis JSON.
+8. Return a structured response.
+
+### Prompt Builders
+
+Prompt templates live in `backend/app/llm/prompts.py`.
+
+The prompts are split into:
+
+- Primary answer prompt
+- Reviewer critique prompt
+- Final synthesis prompt
+
+The synthesis prompt asks for JSON only so the backend can return a stable response shape.
+
+### Markdown Export Utility
+
+Markdown export is implemented in the frontend. It builds a `.md` report from the currently visible consensus result and downloads it in the browser.
+
+The export does not call the backend and does not store reports.
+
+### Docker Compose
+
+Docker Compose runs the backend and frontend together.
+
+The backend service loads `.env`. The frontend receives only `VITE_API_BASE_URL`.
+
+## Provider Boundary
+
+```text
+Browser
+  -> local backend
+      -> OpenAI / Gemini
+```
+
+The frontend never calls OpenAI or Gemini directly. Provider API keys remain backend-only and are loaded from `.env`.
+
+The frontend sends:
+
+- User question
+- Provider selections
+
+The frontend receives:
+
+- Structured result
+- Safe errors
+- Backend health status
+
+The frontend does not receive provider API keys.
+
+## Data Flow
+
+```text
+User question
+  -> frontend
+  -> backend /consensus/run
+  -> backend builds prompts
+  -> backend sends prompt to primary provider
+  -> backend sends answer to reviewer provider
+  -> backend sends question + answer + critique to synthesizer provider
+  -> backend parses synthesis JSON
+  -> backend returns structured result
+  -> frontend displays result
+  -> optional browser-side Markdown export
+```
+
+No server-side prompt/result storage exists in V1.
+
+## Failure Handling
+
+- Missing provider keys return safe, readable errors.
+- Unsupported providers return safe errors.
+- Provider call failures are wrapped in safe errors.
+- Invalid synthesis JSON does not crash the workflow.
+- If synthesis JSON parsing fails, the raw synthesizer output becomes `final_answer`, list fields are empty, and an uncertainty explains that valid structured JSON was not returned.
+- `/health` provides a simple backend readiness check.
+
+## Diagrams
+
+### Runtime Boundary
+
+```text
++-------------------+       +-------------------+       +------------------+
+| React/Vite UI     | ----> | FastAPI backend   | ----> | OpenAI / Gemini  |
+| localhost:5173    |       | localhost:8000    |       | provider APIs    |
++-------------------+       +-------------------+       +------------------+
+        |                           |
+        |                           +-- reads .env provider keys
+        +-- no provider keys
+```
+
+### Consensus Stages
+
+```text
+Question
+  -> Primary answer
+  -> Reviewer critique
+  -> Final synthesis JSON
+  -> Structured result
+```
+
+### Export
+
+```text
+Structured result in browser
+  -> Export Markdown
+  -> local .md download
+```
