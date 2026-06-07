@@ -12,6 +12,14 @@ class GeminiProvider(BaseLLMProvider):
         self._api_key = settings.gemini_api_key
         self._model = settings.gemini_model
 
+    @property
+    def provider_name(self) -> str:
+        return "gemini"
+
+    @property
+    def model_name(self) -> str:
+        return self._model
+
     def generate(self, prompt: str) -> str:
         if not self._api_key:
             raise MissingProviderConfigError(

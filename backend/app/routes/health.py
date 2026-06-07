@@ -9,5 +9,5 @@ router = APIRouter()
 def health() -> HealthResponse:
     return HealthResponse(
         status="ok",
-        service="Mythadis-consensus-engine-backend",
+        service="mythadis-consensus-engine-backend",
     )

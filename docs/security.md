@@ -1,7 +1,11 @@
 # Security
 
-API keys will be backend-only. The frontend must not receive OpenAI, Gemini, or other provider secrets.
+API keys are backend-only. The frontend must not receive OpenAI, Gemini, or other provider secrets.
 
 `.env` files must not be committed. Use `.env.example` for placeholder configuration only.
 
-No prompt storage is planned in V1. No login or authentication is planned in V1. Users will bring their own API keys when provider support is added.
+When `/consensus/run` is used, the user's question and generated answers are sent to the configured LLM providers as part of the answer, review, and synthesis workflow. Users should only submit content they are comfortable sending to those providers.
+
+No prompt storage or result storage is implemented in V1. No login, authentication, database, prompt history, or saved results are implemented in V1.
+
+Provider errors returned by the API must be safe and must not include API keys, request headers, raw secret environment values, or provider stack traces.

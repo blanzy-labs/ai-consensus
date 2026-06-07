@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.routes.consensus import router as consensus_router
 from app.routes.health import router as health_router
 
 app = FastAPI(title=settings.app_name)
@@ -15,3 +16,4 @@ app.add_middleware(
 )
 
 app.include_router(health_router)
+app.include_router(consensus_router)

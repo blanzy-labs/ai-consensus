@@ -12,6 +12,14 @@ class OpenAIProvider(BaseLLMProvider):
         self._api_key = settings.openai_api_key
         self._model = settings.openai_model
 
+    @property
+    def provider_name(self) -> str:
+        return "openai"
+
+    @property
+    def model_name(self) -> str:
+        return self._model
+
     def generate(self, prompt: str) -> str:
         if not self._api_key:
             raise MissingProviderConfigError(
