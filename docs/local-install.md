@@ -1,6 +1,9 @@
 # Local Install Guide
 
 ## Prerequisites
+Python 3.12 recommended
+Python 3.13 likely works
+Python 3.14 may show dependency deprecation warnings
 
 - Git
 - Docker Engine with Docker Compose
