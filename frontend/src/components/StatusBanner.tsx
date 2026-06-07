@@ -8,22 +8,22 @@ type StatusBannerProps = {
 
 function StatusBanner({ health, error, isChecking }: StatusBannerProps) {
   if (isChecking) {
-    return <div className="status-banner neutral">Checking backend health...</div>;
+    return <div className="status-banner neutral">Backend status unknown. Checking...</div>;
   }
 
   if (error) {
-    return <div className="status-banner error">{error}</div>;
+    return <div className="status-banner error">Backend unavailable. {error}</div>;
   }
 
   if (health) {
     return (
       <div className="status-banner success">
-        Backend status: {health.status} ({health.service})
+        Backend online. {health.status} ({health.service})
       </div>
     );
   }
 
-  return <div className="status-banner neutral">Backend status not checked.</div>;
+  return <div className="status-banner neutral">Backend status unknown.</div>;
 }
 
 export default StatusBanner;
