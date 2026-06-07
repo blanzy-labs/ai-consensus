@@ -6,6 +6,8 @@ Current status: backend consensus workflow is available. The project has the fou
 
 The frontend question workflow is not implemented yet. Markdown export, login, database storage, prompt history, and saved results are also not implemented.
 
+Prompt design has been hardened and documented in `docs/prompt-design.md`. The prompts emphasize objective review, uncertainty handling, no fake citations, and structured synthesis output.
+
 ## Local Setup
 
 ### Backend
