@@ -162,7 +162,7 @@ These are planned ideas and are not included in Mythadis Consensus Engine today.
 - [Prompt design](docs/prompt-design.md)
 - [Demo script](docs/demo-script.md)
 - [Sample report](docs/sample-report.md)
-
+- [Troubleshooting](docs/troubleshooting.md)
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
