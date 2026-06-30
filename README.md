@@ -37,8 +37,8 @@ Screenshots will be added after the first public demo recording.
 ## Quick Start
 
 ```bash
-git clone <repo-url>
-cd mythadis-consensus-engine
+git clone https://github.com/blanzy-labs/ai-consensus.git
+cd ai-consensus
 cp .env.example .env
 # edit .env and add provider keys
 docker compose up --build
